@@ -15,6 +15,8 @@ So it makes to write a software once to do that every single time we want
 --> Remove duplicates of files, in order to free up space, Eg: Fally seul amour music exists in three or more resolutions, the program should store the highest resolution and then delete the others, if there copies of the same data, the program will only keep one of them\n
 
 
+"This program is built using Python"
+
  This project is open source, that means that you are free to take any part of the code, use it for free or even modify it,
 
  Christian Balinda
