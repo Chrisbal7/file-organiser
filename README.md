@@ -3,7 +3,7 @@
 This program provides additional feature for current file manager by changing and organize to be easily found by humans
 
 # Why this program?
-For people who stores huge datas on disk, and basically get those data(series, films) in bulk and from multiples providers, to avoid repetitives datas, and to make datas be manupilated easily, we have to organize data in a searchable way by human, 
+For people who store huge datas on disk, and basically get those data(series, films) in bulk and from multiples providers, to avoid repetitives datas, and to make datas be manupilated easily, we have to organize data in a searchable way by human, 
 It can be done by hand, but it's such a boring task that can take days if not weeks based on the amount of datas, 
 So it makes to write a software once to do that every single time we want 
 
@@ -17,6 +17,6 @@ So it makes to write a software once to do that every single time we want
 
 "This program is built using Python"
 
- This project is open source, that means that you are free to take any part of the code, use it for free or even modify it,
+ This project is open source, that means that you are free to take any part of the code, use it for free or even modify it, redistribute it on your own 
 
  Christian Balinda
