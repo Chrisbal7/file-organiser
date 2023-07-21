@@ -14,10 +14,8 @@ usually be suitable for searching them
 import hashlib
 import logging
 import os
-from platform import system
-from re import compile
 
-from psutil import disk_partitions
+from send2trash import send2trash
 
 from lib import *
 
@@ -25,42 +23,35 @@ logging.basicConfig(level=logging.DEBUG,
                     format='%(levelname)s -%(asctime)s %(message)s')
 
 
-class Partition:
-    def __init__(self, partition):
-        self.partition_path = partition.device
-        self.mount_point = partition.mountpoint
+# logging.disable()
 
 
 def get_extension(path):
-    extension_regex = compile(fr'([.]\w+)$')
-    try:
-        return extension_regex.search(os.path.basename(path)).group()[1:]
-    except AttributeError:
-        return None
+    extension = os.path.splitext(path)[-1]
+    if extension:
+        return extension[1:]
 
 
 def generate_hash(path):
-    try:
-        with open(path, 'rb') as file_binary:
-            digest = hashlib.sha256()
-            block_size = 65356
-            file_block = file_binary.read(block_size)
-            while len(file_block) > 0:
-                digest.update(file_block)
+    if os.path.exists(path):
+        try:
+            with open(path, 'rb') as file_binary:
+                digest = hashlib.sha256()
+                block_size = 65356
                 file_block = file_binary.read(block_size)
-            if digest:
-                return digest.hexdigest()
-    except PermissionError:
-        pass
-    except FileNotFoundError:
-        pass
+                while len(file_block) > 0:
+                    digest.update(file_block)
+                    file_block = file_binary.read(block_size)
+                if digest:
+                    return digest.hexdigest()
+        except PermissionError:
+            pass
 
 
 # For media files only
 def delete(file_path):
-    # send2trash(file_path.directory)
-    logging.debug(f'Deleting {os.path.basename(file_path)} at'
-                  f' {os.path.dirname(file_path)}...')
+    send2trash(file_path)
+    logging.debug(f'{os.path.basename(file_path)} DELETED')
 
 
 def print_size(size):
@@ -76,34 +67,26 @@ def print_size(size):
     return f'{round(size, 2)} {prefix}B'
 
 
-def get_partitions():
-    logging.debug('Looking for all mounted partitions...')
-
-    all_partitions = set()
-    partitions = disk_partitions()
-    logging.debug(f'Mountpoints found :')
-    for partition in partitions:
-        if system().lower() == 'linux' and 'loop' in partition.device:
-            continue
-        all_partitions.add(Partition(partition))
-    return all_partitions
-
-
 # Index all files inside a folder
-def index_all_files(*mountpoints):
-    files = []
+def index_all_files(mountpoints):
+    files = set()
     logging.debug('Indexing...')
     for mountpoint in mountpoints:
         for parent_path, subfolders, filenames in os.walk(mountpoint):
+            for subfolder in subfolders:
+                if subfolder in reserved_dirs:
+                    continue
             for filename in filenames:
-                files.append(os.path.join(parent_path, filename))
-        logging.debug(f'{len(files)}files indexed successfully')
+                files.add(os.path.join(parent_path, filename))
+
+    logging.debug(f'{len(files)}files indexed successfully')
     return files
 
 
 def remove_duplicates(files_path):
     files_dict = {}
     hashes = []
+    to_delete = []
     saved_space = 0
     for file_path in files_path:
         if os.path.exists(file_path) and \
@@ -121,12 +104,45 @@ def remove_duplicates(files_path):
             for file_dir in file_dirs:
                 hash_digest = generate_hash(file_dir)
                 if hash_digest in hashes:
-                    delete(file_dir)
+                    to_delete.append(file_dir)
                     saved_space += os.stat(file_dir).st_size
                 else:
                     hashes.append(hash_digest)
-
     logging.debug(f'{print_size(saved_space)} to be freed')
+    return to_delete
 
 
-remove_duplicates(index_all_files('/'))
+def init():
+    dup_files = ''
+    logging.debug('Welcome...')
+    partitions = set()
+    partitions_input = input('Enter les partitions manuellement?\n'
+                             '\'Y\': Oui, \'Enter\' : Non\n')
+    while partitions_input:
+        partition_provided = input()
+        if os.path.exists(partition_provided):
+            partitions.add(partition_provided)
+        else:
+            partitions_input = ''
+
+    remove_dup = input('Supprimer des doublons?\n'
+                       '\'Y\' : Oui, \'Enter\': refuser\n')
+
+    if remove_dup:
+        dup_files = remove_duplicates(index_all_files(partitions))
+
+    delete_input = input('Delete all?\n'
+                         '\'Y\' : Yes, \'Enter\': Non\n')
+
+    if delete_input:
+        for dup_file in dup_files:
+            delete(dup_file)
+    else:
+        for dup_file in dup_files:
+            validate_deletion = input(f'Delete {os.path.basename(dup_file)}?\n'
+                                      '\'Y\' : Yes, \'N\': Non\n')
+            if validate_deletion.lower() == 'y':
+                delete(dup_file)
+
+
+init()

@@ -46,5 +46,32 @@ extensions = {
     'library': ['dll']
 }
 
-media_formats = extensions['audio'] + extensions['video'] \
-                + extensions['document']
+media_formats = extensions['audio']
+
+reserved_dirs = {'windows': ['system32', 'Program Files (x86)',
+                             'windows', 'Program Files', 'PerfLogs',
+                             'MSOCache', 'ProgramData', 'Recovery',
+                             '$Recycle.Bin', 'System Volume Information',
+                             '$WinREAgent'],
+                 'linux': ['bin', 'boot', 'cdrom', 'dev', 'etc',
+                           'lib', 'lib32', 'lib64', 'libx32',
+                           'mnt', 'opt', 'proc', 'root', 'run',
+                           'sbin', 'snap', 'srv', 'sys', 'tmp',
+                           'usr', 'var'],
+                 'darwin': ['Applications', 'Library', 'Network',
+                            'System', 'bin', 'cores', 'dev', 'etc@',
+                            'net', 'private', 'sbin', 'tmp@', 'usr',
+                            'var@']
+                 }
+
+tanzania_artists = ['Diamond Platnumz', 'Ali kiba', 'Nahreel', 'Mbosso',
+                    'vanessa Mdee', 'ben Pol', 'Cool James', 'AY',
+                    'ray c', 'barnaba classic', 'x plastaz', 'nedy music',
+                    'jay mitta', 'shilole', 'lavalava', 'baby madaha', 'harmonize',
+                    'rayvanny', 'nandy', 'lady jaydee', 'dogo janja', 'remmy ongala',
+                    'navy kenzo', 'rich mavoko', 'hamisa mobetto', 'kusah', 'msafiri zawose',
+                    'lava lava', 'siti muharam', 'tommy flavour', 'saida karoli', 'rapcha',
+                    'zuchu', 'jux', 'bill nass', 'marioo', 'dully sykes', 'shetta',
+                    'juma nature', 'aslay', 'darassa', 'platform tz', 'turunesh',
+                    'professor jay', 'queen darleen', 'jay melody', 'dulla makabila',
+                    'abby chams']
